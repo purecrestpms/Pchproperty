@@ -1,0 +1,6 @@
+{
+  "name": "PureCrest — Hospitality, Real Estate & PropTech Platform",
+  "description": "Complete PureCrest business application combining hospitality management, luxury property listings, shortlet bookings, virtual support, OTA listing optimization, and smart property technology with a customer portal, full-site Admin CMS, Firebase Firestore database, and Cloudflare-ready deployment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

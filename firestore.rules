@@ -1,0 +1,577 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Global Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedUser()
+        && request.auth.token.email == 'purecresthospitality@gmail.com';
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        isBootstrappedAdmin() ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    // 3. Entity Validation Blueprints (Anti-Update-Gap)
+
+    function isValidSiteContent(data) {
+      return data.keys().hasAll([
+          'sectionKey', 'brandName', 'heroEyebrow', 'heroTitle', 'heroSubtitle',
+          'heroPrimaryCta', 'heroSecondaryCta', 'heroImageUrl', 'aboutHeadline',
+          'aboutBody', 'statPropertiesManaged', 'statOccupancyRate', 'statCitiesActive',
+          'statEnterpriseClients', 'contactEmail', 'contactPhone', 'officeAddress',
+          'updatedBy', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'sectionKey', 'brandName', 'heroEyebrow', 'heroTitle', 'heroSubtitle',
+          'heroPrimaryCta', 'heroSecondaryCta', 'heroImageUrl', 'aboutHeadline',
+          'aboutBody', 'statPropertiesManaged', 'statOccupancyRate', 'statCitiesActive',
+          'statEnterpriseClients', 'contactEmail', 'contactPhone', 'officeAddress',
+          'announcementBanner', 'officeHoursWeekday', 'officeHoursSaturday',
+          'officeHoursSunday', 'updatedBy', 'updatedAt'
+        ])
+        && data.sectionKey == 'main'
+        && isValidString(data.brandName, 2, 60)
+        && isValidString(data.heroEyebrow, 3, 100)
+        && isValidString(data.heroTitle, 10, 160)
+        && isValidString(data.heroSubtitle, 20, 400)
+        && isValidString(data.heroPrimaryCta, 2, 40)
+        && isValidString(data.heroSecondaryCta, 2, 40)
+        && isValidString(data.heroImageUrl, 5, 350000)
+        && isValidString(data.aboutHeadline, 10, 160)
+        && isValidString(data.aboutBody, 20, 1200)
+        && isValidString(data.statPropertiesManaged, 1, 40)
+        && isValidString(data.statOccupancyRate, 1, 40)
+        && isValidString(data.statCitiesActive, 1, 40)
+        && isValidString(data.statEnterpriseClients, 1, 40)
+        && isValidString(data.contactEmail, 5, 120)
+        && isValidString(data.contactPhone, 5, 40)
+        && isValidString(data.officeAddress, 5, 240)
+        && (!data.keys().hasAny(['announcementBanner']) || isValidString(data.announcementBanner, 0, 200))
+        && (!data.keys().hasAny(['officeHoursWeekday']) || isValidString(data.officeHoursWeekday, 0, 80))
+        && (!data.keys().hasAny(['officeHoursSaturday']) || isValidString(data.officeHoursSaturday, 0, 80))
+        && (!data.keys().hasAny(['officeHoursSunday']) || isValidString(data.officeHoursSunday, 0, 80))
+        && isValidString(data.updatedBy, 1, 128)
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidListing(data) {
+      return data.keys().hasAll([
+          'title', 'category', 'propertyType', 'location', 'address',
+          'priceNgn', 'priceUnit', 'bedrooms', 'bathrooms', 'areaSqm',
+          'maxGuests', 'summary', 'description', 'amenities', 'imageUrl',
+          'featured', 'status', 'authorId', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'category', 'propertyType', 'location', 'address',
+          'priceNgn', 'priceUnit', 'bedrooms', 'bathrooms', 'areaSqm',
+          'maxGuests', 'summary', 'description', 'amenities', 'imageUrl',
+          'galleryImages', 'videoUrl', 'rooms',
+          'featured', 'status', 'authorId', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.title, 3, 140)
+        && data.category in ['shortlet', 'sale', 'lease']
+        && data.propertyType in ['Penthouse', 'Villa', 'Apartment', 'Commercial', 'Land']
+        && isValidString(data.location, 2, 100)
+        && isValidString(data.address, 3, 200)
+        && data.priceNgn is number && data.priceNgn >= 0 && data.priceNgn <= 50000000000
+        && data.priceUnit in ['night', 'year', 'total']
+        && data.bedrooms is number && data.bedrooms >= 0 && data.bedrooms <= 50
+        && data.bathrooms is number && data.bathrooms >= 0 && data.bathrooms <= 50
+        && data.areaSqm is number && data.areaSqm >= 0 && data.areaSqm <= 100000
+        && data.maxGuests is number && data.maxGuests >= 0 && data.maxGuests <= 100
+        && isValidString(data.summary, 10, 300)
+        && isValidString(data.description, 20, 2500)
+        && data.amenities is list && data.amenities.size() <= 20
+        && (data.amenities.size() == 0 || isValidString(data.amenities[0], 1, 60))
+        && isValidString(data.imageUrl, 5, 350000)
+        && (!data.keys().hasAny(['galleryImages']) || (
+          data.galleryImages is list && data.galleryImages.size() <= 15
+          && (data.galleryImages.size() == 0 || isValidString(data.galleryImages[0], 5, 350000))
+        ))
+        && (!data.keys().hasAny(['videoUrl']) || isValidString(data.videoUrl, 0, 700000))
+        && (!data.keys().hasAny(['rooms']) || (
+          data.rooms is list && data.rooms.size() <= 15
+          && (data.rooms.size() == 0 || (
+            data.rooms[0] is map
+            && data.rooms[0].keys().hasAll(['id', 'name', 'bedrooms', 'bathrooms', 'maxGuests', 'pricePerNightNgn', 'amenities', 'galleryImages', 'videoUrl', 'available'])
+          ))
+        ))
+        && data.featured is bool
+        && data.status in ['available', 'reserved', 'sold', 'maintenance']
+        && isValidString(data.authorId, 1, 128)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidListingSubmission(data) {
+      return data.keys().hasAll([
+          'ownerUid', 'ownerName', 'ownerEmail', 'ownerPhone',
+          'title', 'category', 'propertyType', 'location', 'address',
+          'priceNgn', 'priceUnit', 'bedrooms', 'bathrooms', 'areaSqm',
+          'maxGuests', 'summary', 'description', 'amenities', 'imageUrl',
+          'galleryImages', 'videoUrl', 'rooms', 'status', 'adminNotes',
+          'publishedListingId', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerUid', 'ownerName', 'ownerEmail', 'ownerPhone',
+          'title', 'category', 'propertyType', 'location', 'address',
+          'priceNgn', 'priceUnit', 'bedrooms', 'bathrooms', 'areaSqm',
+          'maxGuests', 'summary', 'description', 'amenities', 'imageUrl',
+          'galleryImages', 'videoUrl', 'rooms', 'status', 'adminNotes',
+          'publishedListingId', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.ownerUid, 1, 128)
+        && isValidString(data.ownerName, 2, 100)
+        && isValidString(data.ownerEmail, 5, 150)
+        && isValidString(data.ownerPhone, 5, 30)
+        && isValidString(data.title, 3, 140)
+        && data.category in ['shortlet', 'sale', 'lease']
+        && data.propertyType in ['Penthouse', 'Villa', 'Apartment', 'Commercial', 'Land']
+        && isValidString(data.location, 2, 100)
+        && isValidString(data.address, 3, 200)
+        && data.priceNgn is number && data.priceNgn >= 0 && data.priceNgn <= 50000000000
+        && data.priceUnit in ['night', 'year', 'total']
+        && data.bedrooms is number && data.bedrooms >= 0 && data.bedrooms <= 50
+        && data.bathrooms is number && data.bathrooms >= 0 && data.bathrooms <= 50
+        && data.areaSqm is number && data.areaSqm >= 0 && data.areaSqm <= 100000
+        && data.maxGuests is number && data.maxGuests >= 0 && data.maxGuests <= 100
+        && isValidString(data.summary, 10, 300)
+        && isValidString(data.description, 20, 2500)
+        && data.amenities is list && data.amenities.size() <= 20
+        && (data.amenities.size() == 0 || isValidString(data.amenities[0], 1, 60))
+        && isValidString(data.imageUrl, 5, 350000)
+        && data.galleryImages is list && data.galleryImages.size() <= 15
+        && (data.galleryImages.size() == 0 || isValidString(data.galleryImages[0], 5, 350000))
+        && isValidString(data.videoUrl, 0, 700000)
+        && data.rooms is list && data.rooms.size() <= 15
+        && (data.rooms.size() == 0 || (
+          data.rooms[0] is map
+          && data.rooms[0].keys().hasAll(['id', 'name', 'bedrooms', 'bathrooms', 'maxGuests', 'pricePerNightNgn', 'amenities', 'galleryImages', 'videoUrl', 'available'])
+        ))
+        && data.status in ['pending', 'approved', 'rejected']
+        && isValidString(data.adminNotes, 0, 500)
+        && isValidString(data.publishedListingId, 0, 128)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidBlogPost(data) {
+      return data.keys().hasAll([
+          'title', 'slug', 'category', 'authorName', 'excerpt', 'content',
+          'wordCount', 'coverImageUrl', 'galleryImages', 'published',
+          'authorId', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'slug', 'category', 'authorName', 'excerpt', 'content',
+          'wordCount', 'coverImageUrl', 'galleryImages', 'videoUrl', 'published',
+          'authorId', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.title, 5, 180)
+        && isValidString(data.slug, 3, 180)
+        && data.category in ['Hospitality', 'Real Estate', 'PropTech', 'Investment']
+        && isValidString(data.authorName, 2, 100)
+        && isValidString(data.excerpt, 20, 500)
+        && isValidString(data.content, 100, 60000)
+        && data.wordCount is number && data.wordCount >= 0 && data.wordCount <= 50000
+        && isValidString(data.coverImageUrl, 5, 350000)
+        && data.galleryImages is list && data.galleryImages.size() <= 12
+        && (data.galleryImages.size() == 0 || isValidString(data.galleryImages[0], 5, 350000))
+        && (!data.keys().hasAny(['videoUrl']) || isValidString(data.videoUrl, 0, 700000))
+        && data.published is bool
+        && isValidString(data.authorId, 1, 128)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidService(data) {
+      return data.keys().hasAll([
+          'title', 'division', 'numberLabel', 'tagline', 'description',
+          'deliverables', 'metricHighlight', 'imageUrl', 'active',
+          'sortOrder', 'authorId', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'division', 'numberLabel', 'tagline', 'description',
+          'deliverables', 'metricHighlight', 'imageUrl', 'active',
+          'sortOrder', 'authorId', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.title, 3, 120)
+        && data.division in ['hospitality', 'real-estate', 'technology']
+        && isValidString(data.numberLabel, 1, 10)
+        && isValidString(data.tagline, 5, 180)
+        && isValidString(data.description, 20, 1500)
+        && data.deliverables is list && data.deliverables.size() <= 12
+        && (data.deliverables.size() == 0 || isValidString(data.deliverables[0], 1, 120))
+        && isValidString(data.metricHighlight, 2, 80)
+        && isValidString(data.imageUrl, 5, 350000)
+        && data.active is bool
+        && data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000
+        && isValidString(data.authorId, 1, 128)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidBooking(data) {
+      return data.keys().hasAll([
+          'userId', 'userEmail', 'userName', 'userPhone', 'listingId',
+          'listingTitle', 'bookingType', 'checkInDate', 'checkOutDate',
+          'guests', 'nights', 'totalNgn', 'notes', 'status',
+          'referenceCode', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId', 'userEmail', 'userName', 'userPhone', 'listingId',
+          'listingTitle', 'bookingType', 'checkInDate', 'checkOutDate',
+          'guests', 'nights', 'totalNgn', 'notes', 'status',
+          'referenceCode', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.userId, 1, 128)
+        && isValidString(data.userEmail, 5, 150)
+        && isValidString(data.userName, 2, 100)
+        && isValidString(data.userPhone, 5, 30)
+        && isValidId(data.listingId)
+        && isValidString(data.listingTitle, 3, 200)
+        && data.bookingType in ['shortlet', 'inspection']
+        && isValidString(data.checkInDate, 10, 10)
+        && data.checkInDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && isValidString(data.checkOutDate, 10, 10)
+        && data.checkOutDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.guests is number && data.guests >= 1 && data.guests <= 50
+        && data.nights is number && data.nights >= 0 && data.nights <= 365
+        && data.totalNgn is number && data.totalNgn >= 0 && data.totalNgn <= 5000000000
+        && isValidString(data.notes, 0, 500)
+        && data.status in ['pending', 'confirmed', 'checked-in', 'completed', 'cancelled']
+        && isValidString(data.referenceCode, 4, 32)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidInquiry(data) {
+      return data.keys().hasAll([
+          'userId', 'fullName', 'email', 'phone', 'company',
+          'serviceDivision', 'subject', 'message', 'budgetRange',
+          'status', 'adminReply', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId', 'fullName', 'email', 'phone', 'company',
+          'serviceDivision', 'subject', 'message', 'budgetRange',
+          'status', 'adminReply', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.userId, 1, 128)
+        && isValidString(data.fullName, 2, 100)
+        && isValidString(data.email, 5, 150)
+        && isValidString(data.phone, 5, 30)
+        && isValidString(data.company, 0, 120)
+        && data.serviceDivision in ['hospitality', 'real-estate', 'technology', 'general']
+        && isValidString(data.subject, 3, 160)
+        && isValidString(data.message, 10, 2000)
+        && isValidString(data.budgetRange, 0, 80)
+        && data.status in ['new', 'in-review', 'responded', 'closed']
+        && isValidString(data.adminReply, 0, 1500)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+          'uid', 'displayName', 'email', 'phone', 'company',
+          'savedListingIds', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid', 'displayName', 'email', 'phone', 'company',
+          'savedListingIds', 'createdAt', 'updatedAt'
+        ])
+        && isValidString(data.uid, 1, 128)
+        && isValidString(data.displayName, 1, 100)
+        && isValidString(data.email, 5, 150)
+        && isValidString(data.phone, 0, 30)
+        && isValidString(data.company, 0, 120)
+        && data.savedListingIds is list && data.savedListingIds.size() <= 50
+        && (data.savedListingIds.size() == 0 || isValidId(data.savedListingIds[0]))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAdminMember(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'addedBy', 'createdAt'])
+        && data.keys().hasOnly(['uid', 'email', 'displayName', 'addedBy', 'createdAt'])
+        && isValidId(data.uid)
+        && isValidString(data.email, 5, 150)
+        && isValidString(data.displayName, 2, 100)
+        && isValidString(data.addedBy, 1, 128)
+        && data.createdAt is timestamp;
+    }
+
+    // 4. Collection Rules
+
+    // Public CMS Content
+    match /siteContent/{sectionId} {
+      allow get: if isValidId(sectionId);
+      allow list: if true;
+      allow create: if isAdmin()
+        && isValidId(sectionId)
+        && isValidSiteContent(incoming())
+        && incoming().updatedBy == request.auth.uid
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(sectionId)
+        && isValidSiteContent(incoming())
+        && incoming().sectionKey == existing().sectionKey
+        && incoming().updatedBy == request.auth.uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'brandName', 'heroEyebrow', 'heroTitle', 'heroSubtitle',
+          'heroPrimaryCta', 'heroSecondaryCta', 'heroImageUrl', 'aboutHeadline',
+          'aboutBody', 'statPropertiesManaged', 'statOccupancyRate', 'statCitiesActive',
+          'statEnterpriseClients', 'contactEmail', 'contactPhone', 'officeAddress',
+          'announcementBanner', 'officeHoursWeekday', 'officeHoursSaturday',
+          'officeHoursSunday', 'updatedBy', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(sectionId);
+    }
+
+    // Public Property & Multi-Room Shortlet Catalog
+    match /listings/{listingId} {
+      allow get: if isValidId(listingId);
+      allow list: if true;
+      allow create: if isAdmin()
+        && isValidId(listingId)
+        && isValidListing(incoming())
+        && incoming().authorId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(listingId)
+        && isValidListing(incoming())
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'category', 'propertyType', 'location', 'address',
+          'priceNgn', 'priceUnit', 'bedrooms', 'bathrooms', 'areaSqm',
+          'maxGuests', 'summary', 'description', 'amenities', 'imageUrl',
+          'galleryImages', 'videoUrl', 'rooms',
+          'featured', 'status', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(listingId);
+    }
+
+    // Owner Property Submissions Queue (Moderated by Admin)
+    match /listingSubmissions/{submissionId} {
+      allow get: if isSignedIn() && isValidId(submissionId) && (
+        existing().ownerUid == request.auth.uid || isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.ownerUid == request.auth.uid || isAdmin()
+      );
+      allow create: if isVerifiedUser()
+        && isValidId(submissionId)
+        && isValidListingSubmission(incoming())
+        && incoming().ownerUid == request.auth.uid
+        && incoming().status == 'pending'
+        && incoming().adminNotes == ''
+        && incoming().publishedListingId == ''
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(submissionId)
+        && isValidListingSubmission(incoming())
+        && incoming().ownerUid == existing().ownerUid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && isAdmin()
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'adminNotes', 'publishedListingId', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(submissionId);
+    }
+
+    // Public Editorial Blog Posts (Journal)
+    match /posts/{postId} {
+      allow get: if isValidId(postId);
+      allow list: if true;
+      allow create: if isAdmin()
+        && isValidId(postId)
+        && isValidBlogPost(incoming())
+        && incoming().authorId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(postId)
+        && isValidBlogPost(incoming())
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'slug', 'category', 'authorName', 'excerpt', 'content',
+          'wordCount', 'coverImageUrl', 'galleryImages', 'videoUrl', 'published',
+          'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(postId);
+    }
+
+    // Public Service Offerings (Hospitality, Real Estate, Tech)
+    match /services/{serviceId} {
+      allow get: if isValidId(serviceId);
+      allow list: if true;
+      allow create: if isAdmin()
+        && isValidId(serviceId)
+        && isValidService(incoming())
+        && incoming().authorId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(serviceId)
+        && isValidService(incoming())
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'division', 'numberLabel', 'tagline', 'description',
+          'deliverables', 'metricHighlight', 'imageUrl', 'active',
+          'sortOrder', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(serviceId);
+    }
+
+    // Bookings (PII Isolated, Relational Integrity, Action-Based Updates)
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn() && isValidId(bookingId) && (
+        existing().userId == request.auth.uid || isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow create: if isVerifiedUser()
+        && isValidId(bookingId)
+        && isValidBooking(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'pending'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/listings/$(incoming().listingId));
+      allow update: if isVerifiedUser()
+        && isValidId(bookingId)
+        && isValidBooking(incoming())
+        && incoming().userId == existing().userId
+        && incoming().listingId == existing().listingId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly([
+            'status', 'checkInDate', 'checkOutDate', 'guests', 'nights', 'totalNgn', 'notes', 'updatedAt'
+          ])) ||
+          (
+            existing().userId == request.auth.uid
+            && existing().status in ['pending', 'confirmed']
+            && incoming().status == 'cancelled'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          )
+        );
+      allow delete: if isAdmin() && isValidId(bookingId);
+    }
+
+    // Client Service Inquiries (PII Isolated, Action-Based Updates)
+    match /inquiries/{inquiryId} {
+      allow get: if isSignedIn() && isValidId(inquiryId) && (
+        existing().userId == request.auth.uid || isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow create: if isVerifiedUser()
+        && isValidId(inquiryId)
+        && isValidInquiry(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'new'
+        && incoming().adminReply == ''
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(inquiryId)
+        && isValidInquiry(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && isAdmin()
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'adminReply', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(inquiryId);
+    }
+
+    // Customer Profiles (PII Isolated to Owner or Admin, No Role Self-Assignment)
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (
+        request.auth.uid == userId || isAdmin()
+      );
+      allow list: if isAdmin();
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming())
+        && incoming().uid == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName', 'phone', 'company', 'savedListingIds', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(userId);
+    }
+
+    // Admin Registry
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (
+        request.auth.uid == adminId || isAdmin()
+      );
+      allow list: if isAdmin();
+      allow create: if isAdmin()
+        && isValidId(adminId)
+        && isValidAdminMember(incoming())
+        && incoming().uid == adminId
+        && incoming().addedBy == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAdmin() && isValidId(adminId);
+    }
+  }
+}
