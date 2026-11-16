@@ -7,7 +7,13 @@ import {
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
-import type { User } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut as firebaseSignOut,
+  updateProfile,
+  type User,
+} from 'firebase/auth';
 import {
   DEFAULT_BLOG_POSTS,
   DEFAULT_LISTINGS,
@@ -32,7 +38,7 @@ import type {
   SubmissionStatus,
   UserProfile,
 } from '../types/purecrest';
-import { db, handleFirestoreError, OperationType } from './firebase';
+import { db, handleFirestoreError, OperationType, secondaryAuth } from './firebase';
 import { countWords, slugify } from './mediaUtils';
 
 function sanitizeId(raw: string): string {
@@ -87,6 +93,81 @@ export async function ensureUserProfile(user: User): Promise<void> {
   }
 }
 
+export async function createClientAccountAsAdmin(input: {
+  displayName: string;
+  email: string;
+  password: string;
+  phone: string;
+  company: string;
+  sendVerification: boolean;
+}): Promise<{ uid: string; email: string; verificationSent: boolean }> {
+  const emailTrimmed = clampStr(input.email, 150).toLowerCase();
+  const displayNameTrimmed = clampStr(input.displayName, 100) || 'PureCrest Client';
+  let newUid = '';
+  let verificationSent = false;
+
+  try {
+    const cred = await createUserWithEmailAndPassword(
+      secondaryAuth,
+      emailTrimmed,
+      input.password,
+    );
+    newUid = cred.user.uid;
+    await updateProfile(cred.user, { displayName: displayNameTrimmed });
+    if (input.sendVerification) {
+      try {
+        await sendEmailVerification(cred.user);
+        verificationSent = true;
+      } catch {
+        verificationSent = false;
+      }
+    }
+    await firebaseSignOut(secondaryAuth);
+  } catch (error: unknown) {
+    try {
+      await firebaseSignOut(secondaryAuth);
+    } catch {
+      // Ignore cleanup error
+    }
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error
+        ? String((error as { code?: unknown }).code)
+        : '';
+    if (code === 'auth/operation-not-allowed') {
+      throw new Error(
+        'Email/Password authentication is currently disabled in Firebase Console. Open Firebase Console → Authentication → Sign-in method → Enable Email/Password, then retry creating the client login.',
+      );
+    }
+    if (code === 'auth/email-already-in-use') {
+      throw new Error(
+        `An account with ${emailTrimmed} already exists in Firebase Authentication. The client can sign in at /portal or reset their password.`,
+      );
+    }
+    if (code === 'auth/weak-password') {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+    throw error;
+  }
+
+  const path = `users/${newUid}`;
+  try {
+    await setDoc(doc(db, 'users', newUid), {
+      uid: newUid,
+      displayName: displayNameTrimmed,
+      email: emailTrimmed,
+      phone: clampStr(input.phone, 30),
+      company: clampStr(input.company, 120),
+      savedListingIds: [],
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.CREATE, path);
+  }
+
+  return { uid: newUid, email: emailTrimmed, verificationSent };
+}
+
 export async function updateUserProfile(
   uid: string,
   updates: { displayName: string; phone: string; company: string; savedListingIds: string[] },
@@ -102,6 +183,15 @@ export async function updateUserProfile(
     });
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+}
+
+export async function deleteUserProfileAsAdmin(uid: string): Promise<void> {
+  const path = `users/${uid}`;
+  try {
+    await deleteDoc(doc(db, 'users', uid));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
   }
 }
 
@@ -136,6 +226,10 @@ const OBSOLETE_DEMO_LISTING_IDS = [
   'lekki-phase1-waterfront-loft',
 ];
 
+const OBSOLETE_DEMO_POST_IDS = [
+  'investing-lagos-serviced-shortlets-2026',
+];
+
 export async function seedInitialDatabase(adminUid: string): Promise<void> {
   try {
     const batch = writeBatch(db);
@@ -150,6 +244,10 @@ export async function seedInitialDatabase(adminUid: string): Promise<void> {
 
     for (const obsoleteId of OBSOLETE_DEMO_LISTING_IDS) {
       batch.delete(doc(db, 'listings', obsoleteId));
+    }
+
+    for (const obsoletePostId of OBSOLETE_DEMO_POST_IDS) {
+      batch.delete(doc(db, 'posts', obsoletePostId));
     }
 
     for (const listing of DEFAULT_LISTINGS) {
@@ -197,12 +295,14 @@ export async function saveSiteContent(
     await setDoc(doc(db, 'siteContent', 'main'), {
       sectionKey: 'main',
       brandName: clampStr(content.brandName, 60),
+      logoUrl: clampStr(content.logoUrl || '', 340000),
       heroEyebrow: clampStr(content.heroEyebrow, 100),
       heroTitle: clampStr(content.heroTitle, 160),
       heroSubtitle: clampStr(content.heroSubtitle, 400),
       heroPrimaryCta: clampStr(content.heroPrimaryCta, 40),
       heroSecondaryCta: clampStr(content.heroSecondaryCta, 40),
       heroImageUrl: clampStr(content.heroImageUrl, 340000),
+      servicesHeroImageUrl: clampStr(content.servicesHeroImageUrl || '', 340000),
       aboutHeadline: clampStr(content.aboutHeadline, 160),
       aboutBody: clampStr(content.aboutBody, 1200),
       statPropertiesManaged: clampStr(content.statPropertiesManaged, 40),
@@ -454,6 +554,7 @@ export async function upsertBlogPost(
     slug: clampStr(post.slug || slugify(post.title) || id, 180),
     category: post.category,
     authorName: clampStr(post.authorName || 'PureCrest Editorial Desk', 100),
+    publishedDate: clampStr(post.publishedDate || new Date().toISOString().slice(0, 10), 40),
     excerpt: clampStr(post.excerpt, 500),
     content: cleanedContent,
     wordCount: words,

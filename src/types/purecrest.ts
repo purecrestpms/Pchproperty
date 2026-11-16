@@ -53,6 +53,8 @@ export interface SiteContent {
   officeHoursWeekday?: string;
   officeHoursSaturday?: string;
   officeHoursSunday?: string;
+  logoUrl?: string;
+  servicesHeroImageUrl?: string;
   updatedBy: string;
   updatedAt?: Timestamp | Date | null;
 }
@@ -130,6 +132,7 @@ export interface BlogPost {
   galleryImages: string[];
   videoUrl: string;
   published: boolean;
+  publishedDate?: string;
   authorId: string;
   createdAt?: Timestamp | Date | null;
   updatedAt?: Timestamp | Date | null;

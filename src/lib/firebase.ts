@@ -1,13 +1,19 @@
-import { initializeApp } from 'firebase/app';
+import { getApps, initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { doc, getDocFromServer, getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().find((a) => a.name === '[DEFAULT]') ?? initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+// Secondary isolated Auth instance allowing Administrators to provision client logins without ending their own admin session.
+const provisioningApp =
+  getApps().find((a) => a.name === 'ClientProvisioningApp') ??
+  initializeApp(firebaseConfig, 'ClientProvisioningApp');
+export const secondaryAuth = getAuth(provisioningApp);
 
 export enum OperationType {
   CREATE = 'create',

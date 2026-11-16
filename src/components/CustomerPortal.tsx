@@ -1,12 +1,14 @@
-import type { User } from 'firebase/auth';
+import { sendEmailVerification, type User } from 'firebase/auth';
 import {
   Bookmark,
   Building2,
   Calendar,
   Home,
   LogOut,
+  MailCheck,
   MessageSquare,
   Plus,
+  RefreshCw,
   ShieldCheck,
   User as UserIcon,
 } from 'lucide-react';
@@ -90,6 +92,10 @@ export function CustomerPortal({
   const [company, setCompany] = useState(profile?.company || '');
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSavedNotice, setProfileSavedNotice] = useState(false);
+  const [verificationBusy, setVerificationBusy] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [verifiedState, setVerifiedState] = useState(user.emailVerified);
 
   const savedListings = listings.filter((item) =>
     (profile?.savedListingIds ?? []).includes(item.id),
@@ -172,6 +178,69 @@ export function CustomerPortal({
             </button>
           </div>
         </div>
+
+        {!verifiedState && (
+          <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <MailCheck className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-950 space-y-1">
+                <div className="font-semibold">Verify your email address ({user.email})</div>
+                <p className="text-amber-800 leading-relaxed">
+                  Please click the verification link in your inbox to unlock saving listings, creating bookings, and submitting properties.
+                </p>
+                {verificationSent && (
+                  <p className="font-medium text-emerald-800">
+                    Verification email dispatched. Check your inbox and spam folder.
+                  </p>
+                )}
+                {verificationError && (
+                  <p className="font-medium text-red-700">{verificationError}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                disabled={verificationBusy}
+                onClick={async () => {
+                  setVerificationBusy(true);
+                  setVerificationError(null);
+                  try {
+                    await sendEmailVerification(user);
+                    setVerificationSent(true);
+                  } catch (err) {
+                    setVerificationError(
+                      err instanceof Error ? err.message : 'Unable to send verification email.',
+                    );
+                  } finally {
+                    setVerificationBusy(false);
+                  }
+                }}
+                className="px-3.5 py-2 text-xs font-medium bg-[#064E3B] hover:bg-emerald-950 text-white rounded-lg cursor-pointer"
+              >
+                Resend Email
+              </button>
+              <button
+                type="button"
+                disabled={verificationBusy}
+                onClick={async () => {
+                  setVerificationBusy(true);
+                  setVerificationError(null);
+                  try {
+                    await user.reload();
+                    setVerifiedState(user.emailVerified);
+                  } finally {
+                    setVerificationBusy(false);
+                  }
+                }}
+                className="px-3.5 py-2 text-xs font-medium bg-white border border-amber-300 text-amber-950 hover:bg-amber-100 rounded-lg inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>I&apos;ve Verified</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Navigation Tabs */}
         <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-1">

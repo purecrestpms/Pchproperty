@@ -32,7 +32,7 @@ export function SubmitListingModal({
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<ListingCategory>('shortlet');
   const [propertyType, setPropertyType] = useState<PropertyType>('Apartment');
-  const [location, setLocation] = useState('Abuja, FCT');
+  const [location, setLocation] = useState('Enugu, Nigeria');
   const [address, setAddress] = useState('');
   const [priceNgn, setPriceNgn] = useState(145000);
   const [priceUnit, setPriceUnit] = useState<PriceUnit>('night');
@@ -289,7 +289,7 @@ export function SubmitListingModal({
                     required
                     minLength={3}
                     maxLength={140}
-                    placeholder="e.g. Maitama Executive 3-Bedroom Shortlet"
+                    placeholder="e.g. Executive 3-Bedroom Serviced Shortlet"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#155E95]"
@@ -339,7 +339,7 @@ export function SubmitListingModal({
                   <input
                     type="text"
                     required
-                    placeholder="Wuse II, Abuja"
+                    placeholder="e.g. Thinkers Corner, Enugu"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg"
@@ -632,7 +632,7 @@ export function SubmitListingModal({
                 <span className="text-xs text-slate-500">
                   {user
                     ? `Submitting as ${user.email}`
-                    : 'Sign in with Google upon submission to track approval status.'}
+                    : 'Direct submission to PureCrest listing review'}
                 </span>
                 <div className="flex items-center gap-3">
                   <button
@@ -647,11 +647,7 @@ export function SubmitListingModal({
                     disabled={submitting}
                     className="px-6 py-2.5 text-xs font-semibold bg-[#155E95] hover:bg-[#0E446E] disabled:bg-slate-300 text-white rounded-lg cursor-pointer"
                   >
-                    {submitting
-                      ? 'Submitting...'
-                      : user
-                        ? 'Submit Property for Review'
-                        : 'Sign In & Submit Property'}
+                    {submitting ? 'Submitting...' : 'Submit Property for Review'}
                   </button>
                 </div>
               </div>

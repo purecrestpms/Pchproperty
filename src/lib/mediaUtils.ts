@@ -36,9 +36,12 @@ export async function compressImageFileToDataUrl(
           return;
         }
         ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+        let dataUrl = isPng
+          ? canvas.toDataURL('image/png')
+          : canvas.toDataURL('image/jpeg', quality);
         if (dataUrl.length > 260000) {
-          dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          dataUrl = canvas.toDataURL('image/jpeg', 0.65);
         }
         resolve(dataUrl);
       };
@@ -113,3 +116,56 @@ export function parseVideoEmbed(rawUrl: string): ParsedVideo {
     return null;
   }
 }
+
+export function formatBlogDate(
+  publishedDate?: string,
+  createdAt?: { seconds?: number } | Date | null,
+): string {
+  if (publishedDate && publishedDate.trim()) {
+    const parsed = new Date(`${publishedDate.trim()}T12:00:00Z`);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    }
+  }
+  if (createdAt && typeof createdAt === 'object') {
+    if ('seconds' in createdAt && typeof createdAt.seconds === 'number') {
+      return new Date(createdAt.seconds * 1000).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    }
+    if (createdAt instanceof Date && !Number.isNaN(createdAt.getTime())) {
+      return createdAt.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    }
+  }
+  return 'November 16, 2026';
+}
+
+export function buildSocialShareUrls(post: { title: string; slug: string }) {
+  const origin =
+    typeof window !== 'undefined' && window.location.origin
+      ? window.location.origin
+      : 'https://www.purecrest.ng';
+  const shareUrl = `${origin}/#journal-${encodeURIComponent(post.slug)}`;
+  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedTitle = encodeURIComponent(post.title);
+  const whatsappText = encodeURIComponent(`${post.title} — ${shareUrl}`);
+
+  return {
+    shareUrl,
+    whatsapp: `https://wa.me/?text=${whatsappText}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+  };
+}
+

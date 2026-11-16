@@ -3,16 +3,20 @@ import {
   ArrowRight,
   Bookmark,
   BookOpen,
+  Calendar,
   Check,
+  Copy,
   Mail,
   MapPin,
   Phone,
   Plus,
   Search,
+  Share2,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { formatNaira, LOGO_ASSET_PATH } from '../data/seedData';
 import { createInquiry } from '../lib/firestoreService';
+import { buildSocialShareUrls, formatBlogDate } from '../lib/mediaUtils';
 import type {
   BlogPost,
   InquiryDivision,
@@ -81,6 +85,7 @@ export function PublicSite({
   const [inquirySubmitting, setInquirySubmitting] = useState(false);
   const [inquiryError, setInquiryError] = useState<string | null>(null);
   const [inquirySuccessId, setInquirySuccessId] = useState<string | null>(null);
+  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
 
   const filteredListings = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -637,46 +642,110 @@ export function PublicSite({
             </div>
           ) : (
             <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {publishedPosts.map((post) => (
-                <article
-                  key={post.id}
-                  className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between hover:border-[#155E95]/50 transition-colors"
-                >
-                  <div>
-                    <div className="aspect-[16/9] w-full bg-slate-100 overflow-hidden">
-                      <ResilientImage
-                        src={post.coverImageUrl}
-                        alt={post.title}
-                        className="w-full h-full object-cover"
-                        fallbackLabel={post.title}
-                      />
-                    </div>
-                    <div className="p-6">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                        <span className="font-semibold text-[#155E95]">{post.category}</span>
+              {publishedPosts.map((post) => {
+                const share = buildSocialShareUrls(post);
+                const dateLabel = formatBlogDate(post.publishedDate, post.createdAt);
+                const handleCopyLink = async () => {
+                  try {
+                    await navigator.clipboard.writeText(share.shareUrl);
+                    setCopiedPostId(post.id);
+                    setTimeout(() => setCopiedPostId(null), 2200);
+                  } catch {
+                    // Ignore clipboard permission errors
+                  }
+                };
+                return (
+                  <article
+                    key={post.id}
+                    id={`journal-${post.slug}`}
+                    className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between hover:border-[#155E95]/50 transition-colors"
+                  >
+                    <div>
+                      <div className="aspect-[16/9] w-full bg-slate-100 overflow-hidden">
+                        <ResilientImage
+                          src={post.coverImageUrl}
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                          fallbackLabel={post.title}
+                        />
                       </div>
-                      <h3 className="mt-2 font-display text-xl font-bold text-slate-900 leading-snug">
-                        {post.title}
-                      </h3>
-                      <p className="mt-3 text-sm text-slate-600 leading-relaxed line-clamp-3">
-                        {post.excerpt}
-                      </p>
+                      <div className="p-6">
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                          <span className="font-semibold text-[#155E95]">{post.category}</span>
+                          <span className="inline-flex items-center gap-1.5 text-slate-500">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{dateLabel}</span>
+                          </span>
+                        </div>
+                        <h3 className="mt-2 font-display text-xl font-bold text-slate-900 leading-snug">
+                          {post.title}
+                        </h3>
+                        <p className="mt-3 text-sm text-slate-600 leading-relaxed line-clamp-3">
+                          {post.excerpt}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">{post.authorName}</span>
-                    <button
-                      type="button"
-                      onClick={() => onSelectPost(post)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#155E95] hover:text-[#0E446E] hover:underline underline-offset-4 cursor-pointer"
-                    >
-                      <BookOpen className="w-3.5 h-3.5" />
-                      <span>Read Full Article</span>
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    <div className="px-6 py-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                        <Share2 className="w-3.5 h-3.5 text-slate-400 mr-0.5" />
+                        <a
+                          href={share.whatsapp}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Share ${post.title} on WhatsApp`}
+                          className="px-2 py-1 text-[11px] font-medium bg-slate-100 hover:bg-emerald-50 hover:text-[#064E3B] rounded transition-colors"
+                        >
+                          WhatsApp
+                        </a>
+                        <a
+                          href={share.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Share ${post.title} on X`}
+                          className="px-2 py-1 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 rounded transition-colors"
+                        >
+                          X
+                        </a>
+                        <a
+                          href={share.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Share ${post.title} on LinkedIn`}
+                          className="px-2 py-1 text-[11px] font-medium bg-slate-100 hover:bg-blue-50 hover:text-[#155E95] rounded transition-colors"
+                        >
+                          LinkedIn
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => void handleCopyLink()}
+                          className="px-2 py-1 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 rounded inline-flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          {copiedPostId === post.id ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-700" />
+                              <span className="text-emerald-800">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>Link</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onSelectPost(post)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#155E95] hover:text-[#0E446E] hover:underline underline-offset-4 cursor-pointer"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>Read Full Article</span>
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </div>
@@ -907,18 +976,14 @@ export function PublicSite({
                     <span className="text-xs text-slate-500">
                       {user
                         ? `Submitting as ${user.email}`
-                        : 'Google Sign-In connects this request to your portal.'}
+                        : 'Direct PureCrest advisory desk'}
                     </span>
                     <button
                       type="submit"
                       disabled={inquirySubmitting}
                       className="px-6 py-2.5 bg-[#155E95] hover:bg-[#0E446E] disabled:bg-slate-300 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                     >
-                      {inquirySubmitting
-                        ? 'Submitting...'
-                        : user
-                          ? 'Submit Inquiry'
-                          : 'Sign In & Submit'}
+                      {inquirySubmitting ? 'Submitting...' : 'Submit Inquiry'}
                     </button>
                   </div>
                 </form>
@@ -938,7 +1003,7 @@ export function PublicSite({
               className="flex items-center gap-3 text-left cursor-pointer"
             >
               <img
-                src={LOGO_ASSET_PATH}
+                src={siteContent.logoUrl || LOGO_ASSET_PATH}
                 alt={`${siteContent.brandName} logo`}
                 referrerPolicy="no-referrer"
                 className="h-8 w-auto object-contain shrink-0"
@@ -981,26 +1046,32 @@ export function PublicSite({
               >
                 Submit Listing
               </button>
-              <button
-                type="button"
-                onClick={onOpenPortal}
+              <a
+                href="/portal"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenPortal();
+                }}
                 className="hover:text-[#F6C453] transition-colors cursor-pointer"
               >
                 Client Portal
-              </button>
-              <button
-                type="button"
-                onClick={onOpenAdmin}
+              </a>
+              <a
+                href="/admin"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenAdmin();
+                }}
                 className="text-[#F6C453] hover:text-white transition-colors cursor-pointer"
               >
-                {isAdmin ? 'Admin CMS' : 'Admin Console'}
-              </button>
+                {isAdmin ? 'Admin CMS' : 'Admin Login'}
+              </a>
             </div>
           </div>
 
           <div className="pt-6 border-t border-emerald-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-emerald-100/75">
             <div>
-              © {new Date().getFullYear()} {siteContent.brandName} Nigeria. All rights reserved.
+              © {new Date().getFullYear()} {siteContent.brandName} — Nigeria &amp; Beyond. All rights reserved.
             </div>
             <div className="flex flex-wrap items-center gap-5">
               <button

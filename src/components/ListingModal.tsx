@@ -464,11 +464,9 @@ export function ListingModal({
                       Selected suite: {selectedRoom.name}
                     </div>
                   )}
-                  <p className="text-xs text-slate-500 mt-1">
-                    {user
-                      ? `Booking as ${user.email}`
-                      : 'Sign in with Google on submission to track in your Client Portal.'}
-                  </p>
+                  {user && (
+                    <p className="text-xs text-slate-500 mt-1">Booking as {user.email}</p>
+                  )}
                 </div>
 
                 {isShortlet && (
@@ -636,11 +634,9 @@ export function ListingModal({
                       ? 'Submitting Request...'
                       : listing.status !== 'available'
                         ? 'Currently Unavailable'
-                        : user
-                          ? bookingType === 'shortlet'
-                            ? 'Confirm Reservation Request'
-                            : 'Request Inspection'
-                          : 'Sign In & Confirm Request'}
+                        : bookingType === 'shortlet'
+                          ? 'Confirm Reservation Request'
+                          : 'Request Inspection'}
                   </span>
                 </button>
               </form>

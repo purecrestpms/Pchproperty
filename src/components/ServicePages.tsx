@@ -202,23 +202,37 @@ export function ServicePages({
             </button>
           </div>
 
-          <div className="mt-6 max-w-3xl">
-            <p className="text-xs font-semibold tracking-wide text-[#F6C453]">
-              PureCrest Service Divisions
-            </p>
-            <h1
-              className="mt-2 font-display font-bold text-white leading-tight"
-              style={{ fontSize: 'clamp(2rem, 3.6vw, 3.1rem)', textWrap: 'balance' }}
-            >
-              {activeService
-                ? activeService.title
-                : 'Dedicated Hospitality, Property, Virtual Support, OTA Optimization & Software Services'}
-            </h1>
-            <p className="mt-4 text-base text-emerald-100/90 leading-relaxed">
-              {activeService
-                ? activeService.tagline
-                : 'Explore each dedicated service division operated by PureCrest across Abuja and Lagos — structured for property owners, shortlet hosts, and hospitality operators.'}
-            </p>
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className={siteContent.servicesHeroImageUrl ? 'lg:col-span-8' : 'lg:col-span-12 max-w-3xl'}>
+              <p className="text-xs font-semibold tracking-wide text-[#F6C453]">
+                PureCrest Service Divisions
+              </p>
+              <h1
+                className="mt-2 font-display font-bold text-white leading-tight"
+                style={{ fontSize: 'clamp(2rem, 3.6vw, 3.1rem)', textWrap: 'balance' }}
+              >
+                {activeService
+                  ? activeService.title
+                  : 'Dedicated Hospitality, Property, Virtual Support, OTA Optimization & Software Services'}
+              </h1>
+              <p className="mt-4 text-base text-emerald-100/90 leading-relaxed">
+                {activeService
+                  ? activeService.tagline
+                  : 'Explore each dedicated service division operated by PureCrest serving clients in Nigeria and beyond — structured for property owners, shortlet hosts, and hospitality operators.'}
+              </p>
+            </div>
+            {siteContent.servicesHeroImageUrl && !activeService && (
+              <div className="lg:col-span-4 hidden lg:block">
+                <div className="aspect-[16/10] rounded-xl overflow-hidden border border-emerald-700/70 bg-emerald-950/40">
+                  <ResilientImage
+                    src={siteContent.servicesHeroImageUrl}
+                    alt={`${siteContent.brandName} Services`}
+                    className="w-full h-full object-cover"
+                    fallbackLabel={siteContent.brandName}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Dedicated Page Switcher Tabs */}
@@ -430,7 +444,7 @@ export function ServicePages({
                   : 'Discuss Your Property or Hospitality Goals'}
               </h2>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Complete the form to share your property details or operational goals with our Abuja and Lagos management team.
+                Complete the form to share your property details or operational goals with our management team serving clients in Nigeria and beyond.
               </p>
               <div className="space-y-3 pt-4 border-t border-slate-200 text-sm">
                 <div className="flex items-center gap-3 text-slate-700">
@@ -595,18 +609,14 @@ export function ServicePages({
                     <span className="text-xs text-slate-500">
                       {user
                         ? `Submitting as ${user.email}`
-                        : 'Google Sign-In links this request to your Client Portal.'}
+                        : 'Direct PureCrest service desk consultation'}
                     </span>
                     <button
                       type="submit"
                       disabled={submitting}
                       className="px-6 py-2.5 bg-[#155E95] hover:bg-[#0E446E] disabled:bg-slate-300 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                     >
-                      {submitting
-                        ? 'Submitting...'
-                        : user
-                          ? 'Submit Request'
-                          : 'Sign In & Submit'}
+                      {submitting ? 'Submitting...' : 'Submit Request'}
                     </button>
                   </div>
                 </form>
@@ -626,7 +636,7 @@ export function ServicePages({
               className="flex items-center gap-3 text-left cursor-pointer"
             >
               <img
-                src={LOGO_ASSET_PATH}
+                src={siteContent.logoUrl || LOGO_ASSET_PATH}
                 alt={`${siteContent.brandName} logo`}
                 referrerPolicy="no-referrer"
                 className="h-8 w-auto object-contain shrink-0"
@@ -670,26 +680,32 @@ export function ServicePages({
               >
                 Submit Listing
               </button>
-              <button
-                type="button"
-                onClick={onOpenPortal}
+              <a
+                href="/portal"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenPortal();
+                }}
                 className="hover:text-[#F6C453] transition-colors cursor-pointer"
               >
                 Client Portal
-              </button>
-              <button
-                type="button"
-                onClick={onOpenAdmin}
+              </a>
+              <a
+                href="/admin"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenAdmin();
+                }}
                 className="text-[#F6C453] hover:text-white transition-colors cursor-pointer"
               >
-                {isAdmin ? 'Admin CMS' : 'Admin Console'}
-              </button>
+                {isAdmin ? 'Admin CMS' : 'Admin Login'}
+              </a>
             </div>
           </div>
 
           <div className="pt-6 border-t border-emerald-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-emerald-100/75">
             <div>
-              © {new Date().getFullYear()} {siteContent.brandName} Nigeria. All rights reserved.
+              © {new Date().getFullYear()} {siteContent.brandName} — Nigeria &amp; Beyond. All rights reserved.
             </div>
             <div className="flex flex-wrap items-center gap-5">
               <button
