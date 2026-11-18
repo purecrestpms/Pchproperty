@@ -14,8 +14,79 @@ export type InquiryStatus = 'new' | 'in-review' | 'responded' | 'closed';
 
 export type BlogCategory = 'Hospitality' | 'Real Estate' | 'PropTech' | 'Investment';
 
-export type AppView = 'public' | 'services' | 'portal' | 'admin';
+export type AppView =
+  | 'home'
+  | 'about'
+  | 'listings'
+  | 'services'
+  | 'journal'
+  | 'contact'
+  | 'page'
+  | 'portal'
+  | 'admin';
+
 export type LegalDocType = 'privacy' | 'cookies' | 'terms';
+
+export type MenuPlacement = 'header' | 'footer' | 'both';
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  target: string;
+  placement: MenuPlacement;
+  order: number;
+  visible: boolean;
+}
+
+export interface CmsPageSection {
+  id: string;
+  title: string;
+  body: string;
+  imageUrl: string;
+  ctaLabel: string;
+  ctaTarget: string;
+}
+
+export interface CmsPage {
+  id: string;
+  slug: string;
+  navLabel: string;
+  title: string;
+  eyebrow: string;
+  headline: string;
+  subtitle: string;
+  heroImageUrl: string;
+  body: string;
+  sections: CmsPageSection[];
+  seoTitle: string;
+  seoDescription: string;
+  published: boolean;
+  showInMenu: boolean;
+  menuOrder: number;
+  updatedBy: string;
+  updatedAt?: Timestamp | Date | null;
+}
+
+export type MediaCategory =
+  | 'brand'
+  | 'hero'
+  | 'page'
+  | 'property'
+  | 'service'
+  | 'blog'
+  | 'general';
+
+export interface MediaAsset {
+  id: string;
+  name: string;
+  category: MediaCategory;
+  dataUrl: string;
+  mimeType: string;
+  width: number;
+  height: number;
+  uploadedBy: string;
+  createdAt?: Timestamp | Date | null;
+}
 
 export interface ShortletRoom {
   id: string;
@@ -54,7 +125,13 @@ export interface SiteContent {
   officeHoursSaturday?: string;
   officeHoursSunday?: string;
   logoUrl?: string;
+  aboutImageUrl?: string;
+  listingsHeroImageUrl?: string;
   servicesHeroImageUrl?: string;
+  journalHeroImageUrl?: string;
+  contactHeroImageUrl?: string;
+  partnerBannerImageUrl?: string;
+  menus?: MenuItem[];
   updatedBy: string;
   updatedAt?: Timestamp | Date | null;
 }
@@ -187,6 +264,7 @@ export interface Inquiry {
   subject: string;
   message: string;
   budgetRange: string;
+  sourcePage?: string;
   status: InquiryStatus;
   adminReply: string;
   createdAt?: Timestamp | Date | null;

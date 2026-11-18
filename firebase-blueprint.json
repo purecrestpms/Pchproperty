@@ -2,7 +2,7 @@
   "entities": {
     "SiteContent": {
       "title": "SiteContent",
-      "description": "CMS-managed global website sections including hero, about, metrics, and contact details.",
+      "description": "CMS-managed global website configuration, hero, imagery, contact info, and navigation menus.",
       "type": "object",
       "properties": {
         "sectionKey": {
@@ -10,125 +10,36 @@
           "enum": ["main"],
           "description": "Identifier for the global site content document."
         },
-        "brandName": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 60
-        },
-        "heroEyebrow": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 100
-        },
-        "heroTitle": {
-          "type": "string",
-          "minLength": 10,
-          "maxLength": 160
-        },
-        "heroSubtitle": {
-          "type": "string",
-          "minLength": 20,
-          "maxLength": 400
-        },
-        "heroPrimaryCta": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 40
-        },
-        "heroSecondaryCta": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 40
-        },
-        "heroImageUrl": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 350000
-        },
-        "aboutHeadline": {
-          "type": "string",
-          "minLength": 10,
-          "maxLength": 160
-        },
-        "aboutBody": {
-          "type": "string",
-          "minLength": 20,
-          "maxLength": 1200
-        },
-        "statPropertiesManaged": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 40
-        },
-        "statOccupancyRate": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 40
-        },
-        "statCitiesActive": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 40
-        },
-        "statEnterpriseClients": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 40
-        },
-        "contactEmail": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 120
-        },
-        "contactPhone": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 40
-        },
-        "officeAddress": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 240
-        },
-        "announcementBanner": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 200
-        },
-        "officeHoursWeekday": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 80
-        },
-        "officeHoursSaturday": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 80
-        },
-        "officeHoursSunday": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 80
-        },
-        "logoUrl": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 350000
-        },
-        "servicesHeroImageUrl": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 350000
-        },
-        "updatedBy": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "brandName": { "type": "string", "minLength": 2, "maxLength": 60 },
+        "heroEyebrow": { "type": "string", "minLength": 3, "maxLength": 100 },
+        "heroTitle": { "type": "string", "minLength": 10, "maxLength": 160 },
+        "heroSubtitle": { "type": "string", "minLength": 20, "maxLength": 400 },
+        "heroPrimaryCta": { "type": "string", "minLength": 2, "maxLength": 40 },
+        "heroSecondaryCta": { "type": "string", "minLength": 2, "maxLength": 40 },
+        "heroImageUrl": { "type": "string", "minLength": 5, "maxLength": 350000 },
+        "aboutHeadline": { "type": "string", "minLength": 10, "maxLength": 160 },
+        "aboutBody": { "type": "string", "minLength": 20, "maxLength": 1200 },
+        "statPropertiesManaged": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "statOccupancyRate": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "statCitiesActive": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "statEnterpriseClients": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "contactEmail": { "type": "string", "minLength": 5, "maxLength": 120 },
+        "contactPhone": { "type": "string", "minLength": 5, "maxLength": 40 },
+        "officeAddress": { "type": "string", "minLength": 5, "maxLength": 240 },
+        "announcementBanner": { "type": "string", "minLength": 0, "maxLength": 200 },
+        "officeHoursWeekday": { "type": "string", "minLength": 0, "maxLength": 80 },
+        "officeHoursSaturday": { "type": "string", "minLength": 0, "maxLength": 80 },
+        "officeHoursSunday": { "type": "string", "minLength": 0, "maxLength": 80 },
+        "logoUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "aboutImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "listingsHeroImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "servicesHeroImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "journalHeroImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "contactHeroImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "partnerBannerImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "menus": { "type": "array" },
+        "updatedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "sectionKey",
@@ -152,102 +63,109 @@
         "updatedAt"
       ]
     },
+    "CmsPage": {
+      "title": "CmsPage",
+      "description": "CMS-managed standalone website pages with hero banners, structured sections, and SEO metadata.",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "navLabel": { "type": "string", "minLength": 1, "maxLength": 50 },
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "eyebrow": { "type": "string", "minLength": 0, "maxLength": 120 },
+        "headline": { "type": "string", "minLength": 2, "maxLength": 200 },
+        "subtitle": { "type": "string", "minLength": 0, "maxLength": 500 },
+        "heroImageUrl": { "type": "string", "minLength": 0, "maxLength": 350000 },
+        "body": { "type": "string", "minLength": 0, "maxLength": 12000 },
+        "sections": { "type": "array" },
+        "seoTitle": { "type": "string", "minLength": 0, "maxLength": 180 },
+        "seoDescription": { "type": "string", "minLength": 0, "maxLength": 360 },
+        "published": { "type": "boolean" },
+        "showInMenu": { "type": "boolean" },
+        "menuOrder": { "type": "number" },
+        "updatedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "slug",
+        "navLabel",
+        "title",
+        "eyebrow",
+        "headline",
+        "subtitle",
+        "heroImageUrl",
+        "body",
+        "sections",
+        "seoTitle",
+        "seoDescription",
+        "published",
+        "showInMenu",
+        "menuOrder",
+        "updatedBy",
+        "updatedAt"
+      ]
+    },
+    "MediaAsset": {
+      "title": "MediaAsset",
+      "description": "Persistent image assets uploaded via the Admin CMS Media Library.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "category": {
+          "type": "string",
+          "enum": ["brand", "hero", "page", "property", "service", "blog", "general"]
+        },
+        "dataUrl": { "type": "string", "minLength": 5, "maxLength": 350000 },
+        "mimeType": { "type": "string", "minLength": 3, "maxLength": 60 },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "uploadedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "name",
+        "category",
+        "dataUrl",
+        "mimeType",
+        "width",
+        "height",
+        "uploadedBy",
+        "createdAt"
+      ]
+    },
     "Listing": {
       "title": "Listing",
       "description": "Property listings for sale, long-term lease, or multi-room luxury shortlet accommodation.",
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 140
-        },
-        "category": {
-          "type": "string",
-          "enum": ["shortlet", "sale", "lease"]
-        },
+        "title": { "type": "string", "minLength": 3, "maxLength": 140 },
+        "category": { "type": "string", "enum": ["shortlet", "sale", "lease"] },
         "propertyType": {
           "type": "string",
           "enum": ["Penthouse", "Villa", "Apartment", "Commercial", "Land"]
         },
-        "location": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "address": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 200
-        },
-        "priceNgn": {
-          "type": "number"
-        },
-        "priceUnit": {
-          "type": "string",
-          "enum": ["night", "year", "total"]
-        },
-        "bedrooms": {
-          "type": "number"
-        },
-        "bathrooms": {
-          "type": "number"
-        },
-        "areaSqm": {
-          "type": "number"
-        },
-        "maxGuests": {
-          "type": "number"
-        },
-        "summary": {
-          "type": "string",
-          "minLength": 10,
-          "maxLength": 300
-        },
-        "description": {
-          "type": "string",
-          "minLength": 20,
-          "maxLength": 2500
-        },
-        "amenities": {
-          "type": "array"
-        },
-        "imageUrl": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 350000
-        },
-        "galleryImages": {
-          "type": "array"
-        },
-        "videoUrl": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 700000
-        },
-        "rooms": {
-          "type": "array"
-        },
-        "featured": {
-          "type": "boolean"
-        },
+        "location": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "address": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "priceNgn": { "type": "number" },
+        "priceUnit": { "type": "string", "enum": ["night", "year", "total"] },
+        "bedrooms": { "type": "number" },
+        "bathrooms": { "type": "number" },
+        "areaSqm": { "type": "number" },
+        "maxGuests": { "type": "number" },
+        "summary": { "type": "string", "minLength": 10, "maxLength": 300 },
+        "description": { "type": "string", "minLength": 20, "maxLength": 2500 },
+        "amenities": { "type": "array" },
+        "imageUrl": { "type": "string", "minLength": 5, "maxLength": 350000 },
+        "galleryImages": { "type": "array" },
+        "videoUrl": { "type": "string", "minLength": 0, "maxLength": 700000 },
+        "rooms": { "type": "array" },
+        "featured": { "type": "boolean" },
         "status": {
           "type": "string",
           "enum": ["available", "reserved", "sold", "maintenance"]
         },
-        "authorId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "authorId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "title",
@@ -277,72 +195,24 @@
       "description": "Long-form editorial blog articles (minimum 1000 words) with cover and gallery imagery.",
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 180
-        },
-        "slug": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 180
-        },
+        "title": { "type": "string", "minLength": 5, "maxLength": 180 },
+        "slug": { "type": "string", "minLength": 3, "maxLength": 180 },
         "category": {
           "type": "string",
           "enum": ["Hospitality", "Real Estate", "PropTech", "Investment"]
         },
-        "authorName": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "excerpt": {
-          "type": "string",
-          "minLength": 20,
-          "maxLength": 500
-        },
-        "content": {
-          "type": "string",
-          "minLength": 100,
-          "maxLength": 60000
-        },
-        "wordCount": {
-          "type": "number"
-        },
-        "coverImageUrl": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 350000
-        },
-        "galleryImages": {
-          "type": "array"
-        },
-        "videoUrl": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 700000
-        },
-        "published": {
-          "type": "boolean"
-        },
-        "publishedDate": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 40
-        },
-        "authorId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "authorName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "excerpt": { "type": "string", "minLength": 20, "maxLength": 500 },
+        "content": { "type": "string", "minLength": 100, "maxLength": 60000 },
+        "wordCount": { "type": "number" },
+        "coverImageUrl": { "type": "string", "minLength": 5, "maxLength": 350000 },
+        "galleryImages": { "type": "array" },
+        "videoUrl": { "type": "string", "minLength": 0, "maxLength": 700000 },
+        "published": { "type": "boolean" },
+        "publishedDate": { "type": "string", "minLength": 0, "maxLength": 40 },
+        "authorId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "title",
@@ -365,62 +235,22 @@
       "description": "CMS-managed service offerings across hospitality management, real estate, and technology solutions.",
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 120
-        },
+        "title": { "type": "string", "minLength": 3, "maxLength": 120 },
         "division": {
           "type": "string",
           "enum": ["hospitality", "real-estate", "technology"]
         },
-        "numberLabel": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 10
-        },
-        "tagline": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 180
-        },
-        "description": {
-          "type": "string",
-          "minLength": 20,
-          "maxLength": 1500
-        },
-        "deliverables": {
-          "type": "array"
-        },
-        "metricHighlight": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 80
-        },
-        "imageUrl": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 350000
-        },
-        "active": {
-          "type": "boolean"
-        },
-        "sortOrder": {
-          "type": "number"
-        },
-        "authorId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "numberLabel": { "type": "string", "minLength": 1, "maxLength": 10 },
+        "tagline": { "type": "string", "minLength": 5, "maxLength": 180 },
+        "description": { "type": "string", "minLength": 20, "maxLength": 1500 },
+        "deliverables": { "type": "array" },
+        "metricHighlight": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "imageUrl": { "type": "string", "minLength": 5, "maxLength": 350000 },
+        "active": { "type": "boolean" },
+        "sortOrder": { "type": "number" },
+        "authorId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "title",
@@ -443,41 +273,18 @@
       "description": "Customer shortlet reservations and property inspection appointments.",
       "type": "object",
       "properties": {
-        "userId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "userEmail": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 150
-        },
-        "userName": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "userPhone": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 30
-        },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "userEmail": { "type": "string", "minLength": 5, "maxLength": 150 },
+        "userName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "userPhone": { "type": "string", "minLength": 5, "maxLength": 30 },
         "listingId": {
           "type": "string",
           "minLength": 1,
           "maxLength": 128,
           "pattern": "^[a-zA-Z0-9_\\-]+$"
         },
-        "listingTitle": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 200
-        },
-        "bookingType": {
-          "type": "string",
-          "enum": ["shortlet", "inspection"]
-        },
+        "listingTitle": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "bookingType": { "type": "string", "enum": ["shortlet", "inspection"] },
         "checkInDate": {
           "type": "string",
           "minLength": 10,
@@ -490,37 +297,17 @@
           "maxLength": 10,
           "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
         },
-        "guests": {
-          "type": "number"
-        },
-        "nights": {
-          "type": "number"
-        },
-        "totalNgn": {
-          "type": "number"
-        },
-        "notes": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 500
-        },
+        "guests": { "type": "number" },
+        "nights": { "type": "number" },
+        "totalNgn": { "type": "number" },
+        "notes": { "type": "string", "minLength": 0, "maxLength": 500 },
         "status": {
           "type": "string",
           "enum": ["pending", "confirmed", "checked-in", "completed", "cancelled"]
         },
-        "referenceCode": {
-          "type": "string",
-          "minLength": 4,
-          "maxLength": 32
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "referenceCode": { "type": "string", "minLength": 4, "maxLength": 32 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "userId",
@@ -544,70 +331,29 @@
     },
     "Inquiry": {
       "title": "Inquiry",
-      "description": "Client service consultations and advisory requests across hospitality, real estate, and technology.",
+      "description": "Contact messages, service enquiries, and consultation form submissions received from site visitors and clients.",
       "type": "object",
       "properties": {
-        "userId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "fullName": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "email": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 150
-        },
-        "phone": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 30
-        },
-        "company": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 120
-        },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "email": { "type": "string", "minLength": 5, "maxLength": 150 },
+        "phone": { "type": "string", "minLength": 5, "maxLength": 30 },
+        "company": { "type": "string", "minLength": 0, "maxLength": 120 },
         "serviceDivision": {
           "type": "string",
           "enum": ["hospitality", "real-estate", "technology", "general"]
         },
-        "subject": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 160
-        },
-        "message": {
-          "type": "string",
-          "minLength": 10,
-          "maxLength": 2000
-        },
-        "budgetRange": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 80
-        },
+        "subject": { "type": "string", "minLength": 3, "maxLength": 160 },
+        "message": { "type": "string", "minLength": 10, "maxLength": 2000 },
+        "budgetRange": { "type": "string", "minLength": 0, "maxLength": 80 },
+        "sourcePage": { "type": "string", "minLength": 0, "maxLength": 60 },
         "status": {
           "type": "string",
           "enum": ["new", "in-review", "responded", "closed"]
         },
-        "adminReply": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 1500
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "adminReply": { "type": "string", "minLength": 0, "maxLength": 1500 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "userId",
@@ -630,42 +376,14 @@
       "description": "Authenticated customer profile and saved property preferences.",
       "type": "object",
       "properties": {
-        "uid": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "displayName": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100
-        },
-        "email": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 150
-        },
-        "phone": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 30
-        },
-        "company": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 120
-        },
-        "savedListingIds": {
-          "type": "array"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "email": { "type": "string", "minLength": 5, "maxLength": 150 },
+        "phone": { "type": "string", "minLength": 0, "maxLength": 30 },
+        "company": { "type": "string", "minLength": 0, "maxLength": 120 },
+        "savedListingIds": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "uid",
@@ -683,157 +401,49 @@
       "description": "Authorized PureCrest administrators granted CMS and operations access.",
       "type": "object",
       "properties": {
-        "uid": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "email": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 150
-        },
-        "displayName": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "addedBy": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "email": { "type": "string", "minLength": 5, "maxLength": 150 },
+        "displayName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "addedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "uid",
-        "email",
-        "displayName",
-        "addedBy",
-        "createdAt"
-      ]
+      "required": ["uid", "email", "displayName", "addedBy", "createdAt"]
     },
     "ListingSubmission": {
       "title": "ListingSubmission",
       "description": "Property submissions sent by owners and agents for admin review and catalog publication.",
       "type": "object",
       "properties": {
-        "ownerUid": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 128
-        },
-        "ownerName": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "ownerEmail": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 150
-        },
-        "ownerPhone": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 30
-        },
-        "title": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 140
-        },
-        "category": {
-          "type": "string",
-          "enum": ["shortlet", "sale", "lease"]
-        },
+        "ownerUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "ownerName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "ownerEmail": { "type": "string", "minLength": 5, "maxLength": 150 },
+        "ownerPhone": { "type": "string", "minLength": 5, "maxLength": 30 },
+        "title": { "type": "string", "minLength": 3, "maxLength": 140 },
+        "category": { "type": "string", "enum": ["shortlet", "sale", "lease"] },
         "propertyType": {
           "type": "string",
           "enum": ["Penthouse", "Villa", "Apartment", "Commercial", "Land"]
         },
-        "location": {
-          "type": "string",
-          "minLength": 2,
-          "maxLength": 100
-        },
-        "address": {
-          "type": "string",
-          "minLength": 3,
-          "maxLength": 200
-        },
-        "priceNgn": {
-          "type": "number"
-        },
-        "priceUnit": {
-          "type": "string",
-          "enum": ["night", "year", "total"]
-        },
-        "bedrooms": {
-          "type": "number"
-        },
-        "bathrooms": {
-          "type": "number"
-        },
-        "areaSqm": {
-          "type": "number"
-        },
-        "maxGuests": {
-          "type": "number"
-        },
-        "summary": {
-          "type": "string",
-          "minLength": 10,
-          "maxLength": 300
-        },
-        "description": {
-          "type": "string",
-          "minLength": 20,
-          "maxLength": 2500
-        },
-        "amenities": {
-          "type": "array"
-        },
-        "imageUrl": {
-          "type": "string",
-          "minLength": 5,
-          "maxLength": 350000
-        },
-        "galleryImages": {
-          "type": "array"
-        },
-        "videoUrl": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 700000
-        },
-        "rooms": {
-          "type": "array"
-        },
-        "status": {
-          "type": "string",
-          "enum": ["pending", "approved", "rejected"]
-        },
-        "adminNotes": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 500
-        },
-        "publishedListingId": {
-          "type": "string",
-          "minLength": 0,
-          "maxLength": 128
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "location": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "address": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "priceNgn": { "type": "number" },
+        "priceUnit": { "type": "string", "enum": ["night", "year", "total"] },
+        "bedrooms": { "type": "number" },
+        "bathrooms": { "type": "number" },
+        "areaSqm": { "type": "number" },
+        "maxGuests": { "type": "number" },
+        "summary": { "type": "string", "minLength": 10, "maxLength": 300 },
+        "description": { "type": "string", "minLength": 20, "maxLength": 2500 },
+        "amenities": { "type": "array" },
+        "imageUrl": { "type": "string", "minLength": 5, "maxLength": 350000 },
+        "galleryImages": { "type": "array" },
+        "videoUrl": { "type": "string", "minLength": 0, "maxLength": 700000 },
+        "rooms": { "type": "array" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "adminNotes": { "type": "string", "minLength": 0, "maxLength": 500 },
+        "publishedListingId": { "type": "string", "minLength": 0, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": [
         "ownerUid",
@@ -869,15 +479,23 @@
   "firestore": {
     "/siteContent/{sectionId}": {
       "schema": { "$ref": "#/entities/SiteContent" },
-      "description": "Global CMS content and site-wide configuration."
+      "description": "Global CMS content, image slots, and navigation menus."
+    },
+    "/pages/{pageId}": {
+      "schema": { "$ref": "#/entities/CmsPage" },
+      "description": "CMS-managed standalone pages and custom pages."
+    },
+    "/media/{mediaId}": {
+      "schema": { "$ref": "#/entities/MediaAsset" },
+      "description": "Persistent image library managed by Admins."
     },
     "/listings/{listingId}": {
       "schema": { "$ref": "#/entities/Listing" },
-      "description": "Published real estate and multi-room shortlet property catalog with galleries and video."
+      "description": "Published real estate and multi-room shortlet property catalog."
     },
     "/listingSubmissions/{submissionId}": {
       "schema": { "$ref": "#/entities/ListingSubmission" },
-      "description": "Property submissions queued by owners and partners for admin approval."
+      "description": "Property submissions queued by owners and visitors for admin approval."
     },
     "/posts/{postId}": {
       "schema": { "$ref": "#/entities/BlogPost" },
@@ -893,7 +511,7 @@
     },
     "/inquiries/{inquiryId}": {
       "schema": { "$ref": "#/entities/Inquiry" },
-      "description": "Client service consultations and advisory inquiries."
+      "description": "Contact messages and service consultations."
     },
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/UserProfile" },
